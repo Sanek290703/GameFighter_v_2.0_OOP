@@ -36,7 +36,7 @@ class Creature:
         else:
             ref_damage = self.defend(damage)
             self.hp -= ref_damage
-            return f"{enemy.name} отразил {ref_damage}. У {self.name} осталось {self.hp} HP."
+            return f"{enemy.name} отразил {ref_damage} урона. У {self.name} осталось {self.hp} HP."
 
     def defend(self, damage):
         def_damage = damage - self.shield.protection
@@ -103,11 +103,11 @@ class Sworder(Creature):
             for i in range(hits):
                 print(f'{i + 1}.{super().attack(enemy)}')
         if hits == 1:
-            print(f'{super().attack(enemy)}')
+            return f'{super().attack(enemy)}'
 
 
 class Defender(Creature):
-    def __init__(self, sword, shield, hil, money, hp, name, shop, reflect_chance, bag=[]):
+    def __init__(self, sword, shield, hil, money, hp, name, reflect_chance, shop, bag=[]):
         super().__init__(sword, shield, hil, money, hp, name, shop, bag)
         self.reflect_chance = reflect_chance
 
@@ -272,17 +272,17 @@ class Battle:
             choice = input("Выберите действие: ")
         print(f'Ход {turn}', '-' * 15, sep='\n')
         if choice == '1':
-            self.enemy_turn()
-            self.player.attack(self.enemy)
+            print(self.enemy_turn())
+            print(self.player.attack(self.enemy))
         elif choice == '2':
-            self.enemy_turn()
+            print(self.enemy_turn())
             if not self.player.heal():
                 print('Остается только бить...')
-                self.player.attack(self.enemy)
+                print(self.player.attack(self.enemy))
 
     def enemy_turn(self):
         if not self.enemy.heal():
-            print(self.enemy.attack(self.player))
+            return self.enemy.attack(self.player)
 
     def start(self):
         self.enemy.info()
@@ -321,27 +321,30 @@ class Game:
         self.money = [2, 3, 3, 5, 7, 11, 14, 19, '']
         self.hil = [0, 0, 1, 1, 1, 2, 2, 3, '']
 
-        chance = [1, 2]
+        chance = [1, 1, 1, 1, 1, 1, 1, 2]
         bag = Bag()
         if name == 'Sanek_29' and character_class == '1':
             print(f'\nС возвращением {name}, ваше высочество!')
+            chance = [1, 2]
             shop = Shop(no_sw, sw1, sw2, sw3, sw4, sw5, sw6, sw_prem)
             self.player = Sworder(sw_prem, sh_prem, 88, 10000, 290, name, chance, shop, bag)
         elif character_class == '1':
             shop = Shop(sw2, sw4, sw6, sw_prem, sh2, sh5, sh_prem)
-            self.player = Sworder(sw1, no_sh, 8, 0, 120, name, chance, shop, bag)
+            self.player = Sworder(sw1, no_sh, 5, 0, 120, name, chance, shop, bag)
         elif character_class == '2':
             shop = Shop(sw2, sw3, sw5, sw_prem, sh2, sh4, sh6, sh_prem)
-            self.player = Defender(no_sw, sh1, 5, 0, 160, name, chance, shop, bag)
+            self.player = Defender(no_sw, sh1, 8, 0, 160, name, chance, shop, bag)
+
         shop.set_player(self.player)
         bag.set_player(self.player)
-        # Создаем пустую сумку для игрока
+
         sw_boss = Item("Меч БОССА", 180, (44, 77))
         sh_boss = Item("Щит БОССА", 160, (44,))
 
         # Создаем босса (можно дополнительно определить параметры)
         self.boss = Creature(sw_boss, sh_boss, 8, 250, 222, "БОЛЬШОЙ И СТРАШНЫЙ БОСС", None, None)
         Creature.number -= 1
+
     def menu(self):
         print("\n--- Главное меню ---\n")
         print("1.Зайти в магазин")
